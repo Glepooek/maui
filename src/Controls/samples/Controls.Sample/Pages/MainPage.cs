@@ -9,6 +9,7 @@ namespace Maui.Controls.Sample.Pages
 	public class MainPage : ContentPage, IPage
 	{
 		MainPageViewModel _viewModel;
+
 		public MainPage() : this(App.Current.Services.GetService<MainPageViewModel>())
 		{
 
@@ -35,6 +36,9 @@ namespace Maui.Controls.Sample.Pages
 			verticalStack.Add(new Label { Text = "This should be a CUSTOM font!", FontFamily = "Dokdo" });
 			verticalStack.Add(new Label { Text = "This should have padding", Padding = new Thickness(40), BackgroundColor = Color.LightBlue });
 
+			var underlineLabel = new Label { Text = "underline", TextDecorations = TextDecorations.Underline };
+			verticalStack.Add(underlineLabel);
+
 			var button = new Button() { Text = _viewModel.Text, WidthRequest = 200 };
 			var button2 = new Button()
 			{
@@ -50,6 +54,9 @@ namespace Maui.Controls.Sample.Pages
 
 			verticalStack.Add(horizontalStack);
 
+			verticalStack.Add(new Editor());
+			verticalStack.Add(new Editor { Text = "Editor" });
+
 			var entry = new Entry();
 			entry.TextChanged += (sender, e) =>
 			{
@@ -61,6 +68,10 @@ namespace Maui.Controls.Sample.Pages
 			verticalStack.Add(new Entry { IsTextPredictionEnabled = false });
 			verticalStack.Add(new Entry { Placeholder = "This should be placeholder text" });
 			verticalStack.Add(new Entry { Text = "This should be read only property", IsReadOnly = true });
+
+			verticalStack.Add(new ProgressBar { Progress = 0.5 });
+			verticalStack.Add(new ProgressBar { Progress = 0.5, BackgroundColor = Color.LightCoral });
+			verticalStack.Add(new ProgressBar { Progress = 0.5, ProgressColor = Color.Purple });
 
 			verticalStack.Add(new Slider());
 
