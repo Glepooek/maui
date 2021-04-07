@@ -3,7 +3,7 @@ using Microsoft.UI.Xaml.Controls;
 
 namespace Microsoft.Maui.Handlers
 {
-	public partial class DatePickerHandler : AbstractViewHandler<IDatePicker, DatePicker>
+	public partial class DatePickerHandler : ViewHandler<IDatePicker, DatePicker>
 	{
 		protected override DatePicker CreateNativeView() => new DatePicker();
 
@@ -12,5 +12,6 @@ namespace Microsoft.Maui.Handlers
 		public static void MapMinimumDate(DatePickerHandler handler, IDatePicker datePicker) { }
 		public static void MapMaximumDate(DatePickerHandler handler, IDatePicker datePicker) { }
 		public static void MapCharacterSpacing(DatePickerHandler handler, IDatePicker datePicker) { }
+		public static void MapFont(DatePickerHandler handler, IDatePicker datePicker) { }
 	}
 }
