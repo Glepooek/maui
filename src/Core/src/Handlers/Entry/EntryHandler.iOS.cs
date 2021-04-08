@@ -88,6 +88,11 @@ namespace Microsoft.Maui.Handlers
 			handler.NativeView?.UpdateIsReadOnly(entry);
 		}
 
+		public static void MapKeyboard(EntryHandler handler, IEntry entry)
+		{
+			handler.NativeView?.UpdateKeyboard(entry);
+		}
+		
 		public static void MapReturnType(EntryHandler handler, IEntry entry)
 		{
 			handler.NativeView?.UpdateReturnType(entry);
@@ -95,9 +100,7 @@ namespace Microsoft.Maui.Handlers
 
 		public static void MapFont(EntryHandler handler, IEntry entry)
 		{
-			_ = handler.Services ?? throw new InvalidOperationException($"{nameof(Services)} should have been set by base class.");
-
-			var fontManager = handler.Services.GetRequiredService<IFontManager>();
+			var fontManager = handler.GetRequiredService<IFontManager>();
 
 			handler.NativeView?.UpdateFont(entry, fontManager);
 		}
