@@ -1,5 +1,6 @@
 #nullable enable
 using System;
+using System.Runtime.CompilerServices;
 #if __IOS__
 using NativeView = UIKit.UIView;
 #elif __MACOS__
@@ -27,6 +28,12 @@ namespace Microsoft.Maui.Handlers
 		protected PropertyMapper _mapper;
 		static bool HasSetDefaults;
 
+		[HotReload.OnHotReload]
+		static void OnHotReload()
+		{
+			HasSetDefaults = false;
+		}
+
 		protected ViewHandler(PropertyMapper mapper)
 		{
 			_ = mapper ?? throw new ArgumentNullException(nameof(mapper));
@@ -40,6 +47,12 @@ namespace Microsoft.Maui.Handlers
 		{
 			get => (TNativeView?)base.NativeView;
 			private set => base.NativeView = value;
+		}
+
+		protected TNativeView NativeViewValidation([CallerMemberName] string callerName = "")
+		{
+			_ = NativeView ?? throw new InvalidOperationException($"NativeView cannot be null here: {callerName}");
+			return NativeView;
 		}
 
 		public override void SetVirtualView(IView view)
@@ -127,6 +140,12 @@ namespace Microsoft.Maui.Handlers
 		{
 			get => (TVirtualView?)base.VirtualView;
 			private protected set => base.VirtualView = value;
+		}
+
+		protected TVirtualView VirtualViewWithValidation([CallerMemberName] string callerName = "")
+		{
+			_ = VirtualView ?? throw new InvalidOperationException($"VirtualView cannot be null here: {callerName}");
+			return VirtualView;
 		}
 	}
 }

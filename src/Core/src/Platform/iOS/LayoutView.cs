@@ -1,6 +1,5 @@
 using System;
 using CoreGraphics;
-using Microsoft.Maui;
 using Microsoft.Maui.Graphics;
 using UIKit;
 
@@ -60,7 +59,7 @@ namespace Microsoft.Maui
 
 	public class PageViewController : ContainerViewController
 	{
-		public PageViewController(IPage page,IMauiContext mauiContext)
+		public PageViewController(IPage page, IMauiContext mauiContext)
 		{
 			CurrentView = page;
 			Context = mauiContext;
@@ -75,5 +74,4 @@ namespace Microsoft.Maui
 			};
 		}
 	}
-
 }
