@@ -1,3 +1,5 @@
+using Android.Graphics.Drawables;
+using Android.Views;
 using AndroidX.Core.View;
 using Microsoft.Maui.Graphics;
 using AView = Android.Views.View;
@@ -11,15 +13,26 @@ namespace Microsoft.Maui
 
 		public static void UpdateIsEnabled(this AView nativeView, IView view)
 		{
-			if (nativeView != null)
-				nativeView.Enabled = view.IsEnabled;
+			nativeView.Enabled = view.IsEnabled;
 		}
 
-		public static void UpdateBackground(this AView nativeView, IView view)
+		public static void UpdateVisibility(this AView nativeView, IView view)
 		{
-			if (view == null)
-				return;
+			nativeView.Visibility = view.Visibility.ToNativeVisibility();
+		}
 
+		public static ViewStates ToNativeVisibility(this Visibility visibility)
+		{
+			return visibility switch
+			{
+				Visibility.Hidden => ViewStates.Invisible,
+				Visibility.Collapsed => ViewStates.Gone,
+				_ => ViewStates.Visible,
+			};
+		}
+
+		public static void UpdateBackground(this AView nativeView, IView view, Drawable? defaultBackground = null)
+		{
 			// Remove previous background gradient if any
 			if (nativeView.Background is MauiDrawable mauiDrawable)
 			{
@@ -30,9 +43,9 @@ namespace Microsoft.Maui
 			var paint = view.Background;
 
 			if (paint.IsNullOrEmpty())
-				return;
-
-			nativeView.Background = paint?.ToDrawable();
+				nativeView.Background = defaultBackground;
+			else
+				nativeView.Background = paint!.ToDrawable();
 		}
 
 		public static bool GetClipToOutline(this AView view)

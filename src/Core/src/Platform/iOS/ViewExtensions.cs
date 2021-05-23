@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using CoreAnimation;
+using CoreGraphics;
 using Microsoft.Maui.Graphics;
 using UIKit;
 
@@ -10,15 +11,43 @@ namespace Microsoft.Maui
 	{
 		const string BackgroundLayerName = "MauiBackgroundLayer";
 
-		public static UIColor? GetBackgroundColor(this UIView view)
-			=> view?.BackgroundColor;
-
 		public static void UpdateIsEnabled(this UIView nativeView, IView view)
 		{
 			if (nativeView is not UIControl uiControl)
 				return;
 
 			uiControl.Enabled = view.IsEnabled;
+		}
+
+		public static void UpdateVisibility(this UIView nativeView, IView view)
+		{
+			var shouldLayout = false;
+
+			switch (view.Visibility)
+			{
+				case Visibility.Visible:
+					shouldLayout = nativeView.Inflate();
+					nativeView.Hidden = false;
+					break;
+				case Visibility.Hidden:
+					shouldLayout = nativeView.Inflate();
+					nativeView.Hidden = true;
+					break;
+				case Visibility.Collapsed:
+					nativeView.Hidden = true;
+					nativeView.Collapse();
+					shouldLayout = true;
+					break;
+			}
+
+			// If the view is just switching between Visible and Hidden, then a re-layout isn't necessary. The return value
+			// from Inflate will tell us if the view was previously collapsed. If the view is switching to or from a collapsed
+			// state, then we'll have to ask for a re-layout.
+
+			if (shouldLayout)
+			{
+				nativeView.Superview?.SetNeedsLayout();
+			}
 		}
 
 		public static void UpdateBackground(this UIView nativeView, IView view)
@@ -81,7 +110,7 @@ namespace Microsoft.Maui
 
 			return null;
 		}
-    
+
 		public static void UpdateBackgroundLayerFrame(this UIView view)
 		{
 			if (view == null || view.Frame.IsEmpty)
@@ -89,7 +118,7 @@ namespace Microsoft.Maui
 
 			var layer = view.Layer;
 
-			if (layer == null || layer.Sublayers == null)
+			if (layer == null || layer.Sublayers == null || layer.Sublayers.Length == 0)
 				return;
 
 			foreach (var sublayer in layer.Sublayers)
@@ -101,7 +130,7 @@ namespace Microsoft.Maui
 				}
 			}
 		}
-		    
+
 		public static void InvalidateMeasure(this UIView nativeView, IView view)
 		{
 			nativeView.SetNeedsLayout();
@@ -136,8 +165,50 @@ namespace Microsoft.Maui
 			var currentFrame = nativeView.Frame;
 			nativeView.Frame = new CoreGraphics.CGRect(currentFrame.X, currentFrame.Y, view.Width, view.Height);
 		}
-    
-    static void InsertBackgroundLayer(this UIView control, CALayer backgroundLayer, int index = -1)
+
+		public static int IndexOfSubview(this UIView nativeView, UIView subview)
+		{
+			if (nativeView.Subviews.Length == 0)
+				return -1;
+
+			return Array.IndexOf(nativeView.Subviews, subview);
+		}
+
+		internal static void Collapse(this UIView view)
+		{
+			// See if this view already has a collapse constraint we can use
+			foreach (var constraint in view.Constraints)
+			{
+				if (constraint is CollapseConstraint collapseConstraint)
+				{
+					// Active the collapse constraint; that will squish the view down to zero height
+					collapseConstraint.Active = true;
+					return;
+				}
+			}
+
+			// Set up a collapse constraint and turn it on
+			var collapse = new CollapseConstraint();
+			view.AddConstraint(collapse);
+			collapse.Active = true;
+		}
+
+		internal static bool Inflate(this UIView view)
+		{
+			// Find and deactivate the collapse constraint, if any; the view will go back to its normal height
+			foreach (var constraint in view.Constraints)
+			{
+				if (constraint is CollapseConstraint collapseConstraint)
+				{
+					collapseConstraint.Active = false;
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		static void InsertBackgroundLayer(this UIView control, CALayer backgroundLayer, int index = -1)
 		{
 			control.RemoveBackgroundLayer();
 
@@ -176,6 +247,6 @@ namespace Microsoft.Maui
 					break;
 				}
 			}
-    }
+		}
 	}
 }
